@@ -1,0 +1,46 @@
+# Docker Compose file reference: https://docs.docker.com/compose/compose-file/
+version: '3.7'
+
+# todo: 
+# * DRY-out DEPLOY_ENV
+
+configs:
+  standard_config:
+    file: ./config/config.common.yml
+  env_specific_config:
+    file: ./config/config.${DEPLOY_ENV:-prod}.yml
+  ch12_greetings_svc-TLS_CERT:
+    external: true
+
+secrets:
+  ch12_greetings-svc-TLS_PRIVATE_KEY:
+    external: true
+
+services:
+
+  api:
+      image: ${IMAGE_REPOSITORY:-dockerinaction/ch12_greetings}:api
+      ports:
+        - '8080:80'
+        - '8443:443'
+      user: '1000'
+      configs:
+        - standard_config
+        - env_specific_config
+        - source: ch12_greetings_svc-TLS_CERT
+          target: /svc.crt
+          uid: '1000'
+          gid: '1000'
+          mode: 0400
+      secrets:
+        - source: ch12_greetings-svc-TLS_PRIVATE_KEY
+          target: cert_private_key.pem
+          uid: '1000'
+          gid: '1000'
+          mode: 0400
+      environment:
+        POSTGRES_USER: 'exercise'
+        DEPLOY_ENV: ${DEPLOY_ENV:-prod}
+        CERT_PRIVATE_KEY_FILE: '/run/secrets/cert_private_key.pem'
+        # uncomment to print debugging statements.  note: will TLS certificate info to stdout/logs, including private key
+        #DEBUG: 'true'
