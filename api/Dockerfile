@@ -1,6 +1,6 @@
 FROM golang as app
 WORKDIR /go/src/app
-COPY ./api/main.go .
+COPY ./api/*.go /go/src/app/
 RUN go get ./...
 RUN CGO_ENABLED=0 go build
 
