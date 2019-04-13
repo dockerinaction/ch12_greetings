@@ -5,8 +5,6 @@ version: '3.7'
 # * DRY-out DEPLOY_ENV
 
 configs:
-  standard_config:
-    file: ./api/config/config.common.yml
   env_specific_config:
     file: ./api/config/config.${DEPLOY_ENV:-prod}.yml
 
@@ -19,8 +17,12 @@ services:
         - '8443:8443'
       user: '1000'
       configs:
-        - standard_config
-        - env_specific_config
+        #- env_specific_config # short form mounts the config file in as a file named `env_specific_config`
+        - source: env_specific_config
+          target: /config/config.${DEPLOY_ENV:-prod}.yml
+          uid: '1000'
+          gid: '1000'
+          mode: 0400 #default is 0444 - readonly for all users
       secrets: []
       environment:
         DEPLOY_ENV: ${DEPLOY_ENV:-prod}
