@@ -7,7 +7,7 @@ push:
 	docker push $(IMAGE_REPOSITORY):api
 
 deploy-stack:
-	docker stack deploy --compose-file docker-compose.yml -e DEPLOY_ENV=$(DEPLOY_ENV) greetings
+	docker stack deploy --compose-file docker-compose.yml greetings
 
 SLEEP_TIME_IN_SECS := 10
 destroy-stack:
