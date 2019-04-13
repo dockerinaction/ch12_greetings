@@ -17,7 +17,7 @@ func main() {
 	var err error
 
 	deployEnv := os.Getenv("DEPLOY_ENV")
-	log.Println("Initializing greetings api server for deployment environment ", deployEnv)
+	log.Println("Initializing greetings api server for deployment environment", deployEnv)
 
 	certPrivateKeyFile := os.Getenv("CERT_PRIVATE_KEY_FILE")
 	log.Println(os.ExpandEnv("Will read TLS certificate private key from '${CERT_PRIVATE_KEY_FILE}'"))
@@ -40,6 +40,9 @@ func main() {
 	if os.Getenv("DEBUG") == "true" {
 		log.Println("hostname", hostname)
 	}
+
+	envSpecificConfigFile := fmt.Sprintf("/config/config.%s.yml", deployEnv)
+	log.Println("Loading env-specific configurations from", envSpecificConfigFile)
 
 	http.HandleFunc("/", serveIndex)
 	http.HandleFunc("/greeting", serveGreeting)
