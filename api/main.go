@@ -10,8 +10,8 @@ import (
 )
 
 var (
-	hostname          string
-	envSpecificConfig Configuration
+	hostname string
+	config   Configuration
 )
 
 func main() {
@@ -42,12 +42,19 @@ func main() {
 		log.Println("hostname", hostname)
 	}
 
+	commonConfigFile := "/config/config.common.yml"
+	log.Println("Loading env-specific configurations from", commonConfigFile)
+	commonConfig, err := LoadConfig(commonConfigFile)
+
 	envSpecificConfigFile := fmt.Sprintf("/config/config.%s.yml", deployEnv)
 	log.Println("Loading env-specific configurations from", envSpecificConfigFile)
-	envSpecificConfig, err = LoadConfig(envSpecificConfigFile)
-	for _, greeting := range envSpecificConfig.Greetings {
-		log.Println(greeting)
+	envSpecificConfig, err := LoadConfig(envSpecificConfigFile)
+
+	config = Configuration{
+		Greetings: append(commonConfig.Greetings, envSpecificConfig.Greetings...),
 	}
+
+	log.Printf("Greetings: %v", config.Greetings)
 
 	http.HandleFunc("/", serveIndex)
 	http.HandleFunc("/greeting", serveGreeting)
