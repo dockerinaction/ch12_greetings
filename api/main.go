@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -10,8 +11,28 @@ import (
 )
 
 var (
-	hostname string
+	hostname          string
+	envSpecificConfig Configuration
 )
+
+type Configuration struct {
+	Greetings []string `yaml:"greetings"`
+}
+
+func loadConfig(filename string) (Configuration, error) {
+	bytes, err := ioutil.ReadFile(filename)
+	if err != nil {
+		return Configuration{}, err
+	}
+
+	var c Configuration
+	err = yaml.Unmarshal(bytes, &c)
+	if err != nil {
+		return Configuration{}, err
+	}
+
+	return c, nil
+}
 
 func main() {
 	var err error
@@ -43,6 +64,10 @@ func main() {
 
 	envSpecificConfigFile := fmt.Sprintf("/config/config.%s.yml", deployEnv)
 	log.Println("Loading env-specific configurations from", envSpecificConfigFile)
+	envSpecificConfig, err = loadConfig(envSpecificConfigFile)
+	for _, greeting := range envSpecificConfig.Greetings {
+		log.Println(greeting)
+	}
 
 	http.HandleFunc("/", serveIndex)
 	http.HandleFunc("/greeting", serveGreeting)
