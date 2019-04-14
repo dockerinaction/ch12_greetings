@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"math/rand"
 	"net/http"
 	"os"
 	"time"
@@ -12,6 +13,7 @@ import (
 var (
 	hostname string
 	config   Configuration
+	r        *rand.Rand
 )
 
 func main() {
@@ -56,6 +58,8 @@ func main() {
 
 	log.Printf("Greetings: %v", config.Greetings)
 
+	r = rand.New(rand.NewSource(42))
+
 	http.HandleFunc("/", serveIndex)
 	http.HandleFunc("/greeting", serveGreeting)
 
@@ -72,9 +76,12 @@ func serveIndex(resp http.ResponseWriter, req *http.Request) {
 	fmt.Fprintln(resp, fmt.Sprintf("Container with id %s responded at %s", hostname, time.Now().UTC()))
 }
 
+func SelectRandom(strings []string, r *rand.Rand) string {
+	return strings[r.Intn(len(strings))]
+}
+
 func serveGreeting(resp http.ResponseWriter, req *http.Request) {
 	resp.Header().Set("Content-Type", "text/plain; charset=utf-8")
-	// select a random greeting
-	greeting := "Hello World!"
+	greeting := SelectRandom(config.Greetings, r)
 	fmt.Fprintln(resp, greeting)
 }
