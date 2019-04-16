@@ -1,9 +1,6 @@
 # Docker Compose file reference: https://docs.docker.com/compose/compose-file/
 version: '3.7'
 
-# todo: 
-# * DRY-out DEPLOY_ENV
-
 configs:
   env_specific_config:
     file: ./api/config/config.${DEPLOY_ENV:-prod}.yml
@@ -26,5 +23,3 @@ services:
       secrets: []
       environment:
         DEPLOY_ENV: ${DEPLOY_ENV:-prod}
-        # uncomment to print debugging statements.  note: will TLS certificate info to stdout/logs, including private key
-        #DEBUG: 'true'
