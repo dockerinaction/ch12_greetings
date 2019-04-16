@@ -11,15 +11,16 @@ import (
 )
 
 var (
-	hostname string
-	config   Configuration
-	r        *rand.Rand
+	hostname  string
+	deployEnv string
+	config    Configuration
+	r         *rand.Rand
 )
 
 func main() {
 	var err error
 
-	deployEnv := os.Getenv("DEPLOY_ENV")
+	deployEnv = os.Getenv("DEPLOY_ENV")
 	log.Println("Initializing greetings api server for deployment environment", deployEnv)
 
 	certPrivateKeyFile := os.Getenv("CERT_PRIVATE_KEY_FILE")
@@ -74,6 +75,7 @@ func serveIndex(resp http.ResponseWriter, req *http.Request) {
 
 	fmt.Fprintln(resp, "Welcome to the Greetings API Server!")
 	fmt.Fprintln(resp, fmt.Sprintf("Container with id %s responded at %s", hostname, time.Now().UTC()))
+	fmt.Fprintln(resp, fmt.Sprintf("DEPLOY_ENV: %s", deployEnv))
 }
 
 func SelectRandom(strings []string, r *rand.Rand) string {
