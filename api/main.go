@@ -33,7 +33,20 @@ func main() {
 			log.Fatal(err)
 		}
 
-		log.Println("chars in private key", len(certPrivateKey))
+		log.Println("chars in certificate private key", len(certPrivateKey))
+	}
+
+	certFile := os.Getenv("CERT_FILE")
+	log.Println(os.ExpandEnv("Will read TLS certificate from '${CERT_FILE}'"))
+
+	if certFile != "" {
+
+		cert, err := ioutil.ReadFile(certFile)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		log.Println("chars in TLS certificate", len(cert))
 	}
 
 	hostname, err = os.Hostname()
@@ -64,9 +77,21 @@ func main() {
 	http.HandleFunc("/", serveIndex)
 	http.HandleFunc("/greeting", serveGreeting)
 
-	log.Println("Initialization complete, starting http service on", hostname)
-	if err := http.ListenAndServe(":8080", nil); err != nil {
-		log.Fatal(err)
+	log.Println("Initialization complete")
+
+	if certFile != "" && certPrivateKeyFile != "" {
+		addr := ":8443"
+		log.Printf("Starting https listener on %s", addr)
+		if err := http.ListenAndServeTLS(addr, certFile, certPrivateKeyFile, nil); err != nil {
+			log.Fatal(err)
+		}
+
+	} else {
+		addr := ":8080"
+		log.Printf("Starting http listener on %s", addr)
+		if err := http.ListenAndServe(addr, nil); err != nil {
+			log.Fatal(err)
+		}
 	}
 }
 
