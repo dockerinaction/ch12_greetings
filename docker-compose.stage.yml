@@ -1,0 +1,29 @@
+# Docker Compose file reference: https://docs.docker.com/compose/compose-file/
+version: '3.7'
+
+configs:
+  ch12_greetings_svc-stage-TLS_CERT_V1:
+    external: true
+
+secrets:
+  ch12_greetings-svc-stage-TLS_PRIVATE_KEY_V1:
+    external: true
+
+services:
+
+  api:
+      environment:
+        CERT_PRIVATE_KEY_FILE: '/run/secrets/cert_private_key.pem'
+        CERT_FILE: '/config/svc.crt'
+      configs:
+        - source: ch12_greetings_svc-stage-TLS_CERT_V1
+          target: /config/svc.crt
+          uid: '1000'
+          gid: '1000'
+          mode: 0400
+      secrets:
+        - source: ch12_greetings-svc-stage-TLS_PRIVATE_KEY_V1
+          target: cert_private_key.pem
+          uid: '1000'
+          gid: '1000'
+          mode: 0400
