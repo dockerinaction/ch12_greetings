@@ -1,4 +1,4 @@
-FROM golang as app
+FROM golang:1.12 as app
 WORKDIR /go/src/app
 COPY ./api/*.go /go/src/app/
 RUN go get ./...
